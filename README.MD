@@ -11,7 +11,7 @@ There are 2 kinds of integration Basic and Advanced.
 ### Basic:
 
 
-For the basic integration you have to create a [implicit intent][1] and start it with the method [startActivityForResult][2] as follows:
+For the basic integration you have to create a [implicit intent](http://developer.android.com/intl/es/guide/components/intents-filters.html#ExampleSend) and start it with the method [startActivityForResult]('http://developer.android.com/intl/es/reference/android/app/Activity.html#startActivityForResult(android.content.Intent, int)') as follows:
 
 ```java
 
@@ -44,10 +44,6 @@ For the basic integration you have to create a [implicit intent][1] and start it
                 }
 
 ```
-
-
-[1]:http://developer.android.com/intl/es/guide/components/intents-filters.html#ExampleSend
-[2]:http://developer.android.com/intl/es/reference/android/app/Activity.html#startActivityForResult(android.content.Intent, int)
 
 ### Advanced:
 
