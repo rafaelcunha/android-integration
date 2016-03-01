@@ -26,6 +26,10 @@ public class Main extends AppCompatActivity implements AdapterView.OnItemSelecte
     public static final String LAUNCHER_INTENT_TYPE = "launcher_intent_type";
     public static final String LAUNCHER_INTENT_INSTALLMENTS = "launcher_intent_installments";
 
+    public static final String LAUNCHER_APP_ID = "launcher_app_id";
+    public static final String LAUNCHER_APP_SECRET = "launcher_app_secret";
+    public static final String LAUNCHER_APP_FEE = "launcher_app_fee";
+
     public static final int PAYMENT_REQUEST = 1;
 
     EditText reference;
@@ -34,6 +38,10 @@ public class Main extends AppCompatActivity implements AdapterView.OnItemSelecte
     FloatingActionButton go;
 
     String cc_selected;
+
+    String appId = "MyAppID";
+    String appSecret = "MySecret";
+    double appFee = 12.0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +65,12 @@ public class Main extends AppCompatActivity implements AdapterView.OnItemSelecte
             public void onClick(View v) {
                 Intent i = new Intent();
                 i.setAction("com.mercadopago.PAYMENT_ACTION");
+                // AppId
+                i.putExtra(LAUNCHER_APP_ID, appId);
+                // Secret
+                i.putExtra(LAUNCHER_APP_SECRET, appSecret);
+                // App Fee
+                i.putExtra(LAUNCHER_APP_FEE, appFee);
                 // Amount of transaction
                 i.putExtra(LAUNCHER_INTENT_AMOUNT, amount.getText().toString());
                 // Description of transaction
