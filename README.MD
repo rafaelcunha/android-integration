@@ -20,6 +20,10 @@ For the basic integration you have to create a [implicit intent](http://develope
     public static final String LAUNCHER_INTENT_TYPE = "launcher_intent_type";
     public static final String LAUNCHER_INTENT_INSTALLMENTS = "launcher_intent_installments";
 
+    public static final String LAUNCHER_APP_ID = "launcher_app_id";
+    public static final String LAUNCHER_APP_SECRET = "launcher_app_secret";
+    public static final String LAUNCHER_APP_FEE = "launcher_app_fee";
+
 
     ...
     ...
@@ -27,6 +31,12 @@ For the basic integration you have to create a [implicit intent](http://develope
 
     Intent i = new Intent();
     i.setAction("com.mercadopago.PAYMENT_ACTION");
+    // AppId
+    i.putExtra(LAUNCHER_APP_ID, appId);
+    // Secret
+    i.putExtra(LAUNCHER_APP_SECRET, appSecret);
+    // App Fee
+    i.putExtra(LAUNCHER_APP_FEE, appFee);
     // Amount of transaction
     i.putExtra(LAUNCHER_INTENT_AMOUNT, amount.getText().toString());
     // Description of transaction
