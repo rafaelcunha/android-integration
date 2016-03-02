@@ -7,7 +7,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.pgallazzi.apporonga.R;
+import com.mercadopago.point.integration.R;
 
 import java.util.Iterator;
 

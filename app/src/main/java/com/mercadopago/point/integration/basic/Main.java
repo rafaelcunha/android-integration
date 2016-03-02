@@ -14,7 +14,8 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-import com.pgallazzi.apporonga.R;
+
+import com.mercadopago.point.integration.R;
 
 import java.util.List;
 
