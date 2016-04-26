@@ -48,7 +48,7 @@ public class Resultado extends AppCompatActivity {
                 }
 
                 layoutView.setVisibility(View.VISIBLE);
-                paymentId.setText(data.getString(RESULT_PAYMENT_ID));
+                paymentId.setText(String.valueOf(data.getLong(RESULT_PAYMENT_ID)));
             }
 
             if (RESULT_STATUS_FAILED.equals(result)) {

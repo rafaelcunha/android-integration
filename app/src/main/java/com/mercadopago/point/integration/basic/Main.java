@@ -6,6 +6,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -13,7 +15,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
-
 
 import com.mercadopago.point.integration.R;
 
@@ -30,10 +31,9 @@ public class Main extends AppCompatActivity implements AdapterView.OnItemSelecte
     FloatingActionButton go;
 
     String cc_selected;
-
-    String appId = "MyAppID";
-    String appSecret = "MySecret";
-    double appFee = 12.0;
+    String appId = "2707436798674401";
+    String appSecret = "D0movQVpbi2KeUj5eEO4Co2BNUoFfClp";
+    double appFee = 1.0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,10 +60,6 @@ public class Main extends AppCompatActivity implements AdapterView.OnItemSelecte
                 Bundle bundle = new Bundle();
                 // AppId
                 bundle.putString(BundleCodes.APP_ID, appId);
-                // Secret
-                bundle.putString(BundleCodes.APP_SECRET, appSecret);
-                // App Fee
-                bundle.putDouble(BundleCodes.APP_FEE, appFee);
                 // Amount of transaction
                 bundle.putDouble(BundleCodes.AMOUNT, Double.valueOf(amount.getText().toString()));
                 // Description of transaction
@@ -95,6 +91,21 @@ public class Main extends AppCompatActivity implements AdapterView.OnItemSelecte
         });
     }
 
+    public static Integer MSG_PRINT_RESULTS = 1;
+
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg.what == MSG_PRINT_RESULTS) {
+                Intent intent = new Intent(Main.this, Resultado.class);
+                intent.putExtras((Bundle) msg.obj);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
+
+        }
+    };
+
     public void onItemSelected(AdapterView<?> parent, View view,
                                int pos, long id) {
 
@@ -107,9 +118,10 @@ public class Main extends AppCompatActivity implements AdapterView.OnItemSelecte
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PAYMENT_REQUEST && data != null) {
-            Intent intent = new Intent(this, Resultado.class);
-            intent.putExtras(data.getExtras());
-            startActivity(intent);
+            Message msg = handler.obtainMessage();
+            msg.what = MSG_PRINT_RESULTS;
+            msg.obj = data.getExtras();
+            handler.sendMessageDelayed(msg, 1000);
         }
 
     }
