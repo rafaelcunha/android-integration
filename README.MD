@@ -6,27 +6,14 @@ The purpose of this app is to show the integration with  MP Mobile Android Selle
 
 ## How to:
 
-There are 2 kinds of integration Basic and Advanced.
+There are 2 kinds of integration Intent and Deep Linking.
 
-### Basic:
+### Intent:
 
 
-For the basic integration you have to create a [implicit intent](http://developer.android.com/intl/es/guide/components/intents-filters.html#ExampleSend) and start it with the method [startActivityForResult]('http://developer.android.com/intl/es/reference/android/app/Activity.html#startActivityForResult(android.content.Intent, int)') as follows:
+For the Intent integration you have to create a [implicit intent](http://developer.android.com/intl/es/guide/components/intents-filters.html#ExampleSend) and start it with the method [startActivityForResult]('http://developer.android.com/intl/es/reference/android/app/Activity.html#startActivityForResult(android.content.Intent, int)') as follows:
 
 ```java
-
-  
-    String AMOUNT = "amount";
-    String DESCRIPTION = "description";
-    String CARD_TYPE = "card_type";
-    String INSTALLMENTS = "installments";
-    String APP_ID = "app_id";
-    String APP_SECRET = "app_secret";
-    String APP_FEE = "app_fee";
-
-    ...
-    ...
-
 
      Intent i = new Intent();
                     i.setAction("com.mercadopago.PAYMENT_ACTION");
@@ -85,6 +72,8 @@ in the calling activity:
 the result activity that shows the results:
 
 ```java
+package com.mercadopago.point.integration.basic;
+
 public class Resultado extends AppCompatActivity {
 
     TextView textView;
@@ -93,7 +82,7 @@ public class Resultado extends AppCompatActivity {
     View layoutView;
 
     // it could be
-    public final static String RESULT_STATUS = "result_status";
+
     public final static String RESULT_PAYMENT_ID = "paymentId";
 
     public final static String RESULT_STATUS_OK = "OK";
@@ -111,29 +100,9 @@ public class Resultado extends AppCompatActivity {
         Intent launcherIntent = getIntent();
         Bundle data = launcherIntent.getExtras();
         if (data != null) {
-
-            String result = data.getString(RESULT_STATUS);
-
-            if (RESULT_STATUS_OK.equals(result)) {
-                if (android.os.Build.VERSION.SDK_INT >= 22) {
-                    image.setImageDrawable(getDrawable(R.drawable.ok));
-                } else {
-                    image.setImageDrawable(getResources().getDrawable(R.drawable.ok));
-                }
-
-                layoutView.setVisibility(View.VISIBLE);
-                paymentId.setText(data.getString(RESULT_PAYMENT_ID));
-            }
-
-            if (RESULT_STATUS_FAILED.equals(result)) {
-                if (android.os.Build.VERSION.SDK_INT >= 22) {
-                    image.setImageDrawable(getDrawable(R.drawable.fail));
-                } else {
-                    image.setImageDrawable(getResources().getDrawable(R.drawable.fail));
-                }
-                layoutView.setVisibility(View.GONE);
-            }
-
+            String result = data.getString(BundleCodes.RESULT_STATUS);
+            setStatus(result);
+            paymentId.setText(String.valueOf(data.getLong(RESULT_PAYMENT_ID)));
             Iterator keys = data.keySet().iterator();
             StringBuffer stringBuffer = new StringBuffer();
             while (keys.hasNext()) {
@@ -141,16 +110,57 @@ public class Resultado extends AppCompatActivity {
                 stringBuffer.append(key + " " + String.valueOf(data.get(key)));
             }
             textView.setText(stringBuffer.toString());
-        } else
-
-        {
-            // won't happen.
+        }
+        Uri uri = launcherIntent.getData();
+        if (uri != null) {
+            String result = uri.getQueryParameter(BundleCodes.RESULT_STATUS);
+            setStatus(result);
+            paymentId.setText(uri.getQueryParameter(RESULT_PAYMENT_ID));
+            textView.setText(uri.getQuery());
         }
 
+    }
 
+    private void setStatus(String status) {
+        if (RESULT_STATUS_OK.equals(status)) {
+            if (android.os.Build.VERSION.SDK_INT >= 22) {
+                image.setImageDrawable(getDrawable(R.drawable.ok));
+            } else {
+                image.setImageDrawable(getResources().getDrawable(R.drawable.ok));
+            }
+            layoutView.setVisibility(View.VISIBLE);
+        }
+        if (RESULT_STATUS_FAILED.equals(status)) {
+            if (android.os.Build.VERSION.SDK_INT >= 22) {
+                image.setImageDrawable(getDrawable(R.drawable.fail));
+            } else {
+                image.setImageDrawable(getResources().getDrawable(R.drawable.fail));
+            }
+            layoutView.setVisibility(View.GONE);
+        }
     }
 }
+
 ```
+### Deep Linking:
+
+With URL you call mercadopago by [Deep Linking](http://developer.android.com/intl/es/training/app-indexing/deep-linking.html) 
+with the following URL :  https://secure.mlstatic.com/org-img/point/app/index.html  
+
+|   Variable    |   Required?   | Description  |
+| ------------- |:-------------:| :------------|
+| amount        | yes           | The amount to be charged        |
+| description   | yes           | The description of the charge.  |
+| card_type     | no            | The card type to use, only credit_card or debit_card are valid values |
+| client_id     | no            | The client id to be used to log in. |
+| client_secret  | no 1.         | The client secret of the app. |
+| application_fee | no 2.          | The fee charged by the app. |
+| success_url     | no          | The url to call when the payment has been done successfully, if none is provided we show the default point screen.  |
+| fail_url     | no          | The url to call when the payment has not been done successfully, if none is provided we show the default point screen. |
+
+> 1. Its required is you provide a client_id
+> 2. If you provide application_fee , you must provide client_id & client_secret
+
 
 ## Repo usage
 *Do not clone or push to master branch.*
