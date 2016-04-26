@@ -28,7 +28,8 @@ public class Main extends AppCompatActivity implements AdapterView.OnItemSelecte
     EditText reference;
     EditText amount;
     EditText installments;
-    FloatingActionButton go;
+    FloatingActionButton go_bundle;
+    FloatingActionButton go_url;
 
     String cc_selected;
     String appId = "2707436798674401";
@@ -51,8 +52,9 @@ public class Main extends AppCompatActivity implements AdapterView.OnItemSelecte
         // Apply the adapter to the spinner
         spinner.setAdapter(adapter);
         installments = (EditText) findViewById(R.id.installments);
-        go = (FloatingActionButton) findViewById(R.id.go);
-        go.setOnClickListener(new View.OnClickListener() {
+
+        go_bundle = (FloatingActionButton) findViewById(R.id.go_bundle);
+        go_bundle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent();
@@ -89,6 +91,52 @@ public class Main extends AppCompatActivity implements AdapterView.OnItemSelecte
 
             }
         });
+
+        go_url = (FloatingActionButton) findViewById(R.id.go_url);
+        go_url.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Uri.Builder builder = Uri.parse("https://secure.mlstatic.com/org-img/point/app/index.html")
+                        .buildUpon();
+                // Amount of transaction
+                builder.appendQueryParameter(BundleCodes.AMOUNT, amount.getText().toString());
+                // Description of transaction
+                builder.appendQueryParameter(BundleCodes.DESCRIPTION, reference.getText().toString());
+                if (spinner.getSelectedItemPosition() == 0) {
+                    cc_selected = "credit_card";
+                } else {
+                    cc_selected = "debit_card";
+                }
+                // Payment type of transaction ( credit_card | debit_card  )
+                builder.appendQueryParameter(BundleCodes.CARD_TYPE, cc_selected);
+                // # of installments
+                builder.appendQueryParameter(BundleCodes.INSTALLMENTS, installments.getText().toString());
+
+                builder.appendQueryParameter(BundleCodes.URL_SUCCESS,"demo://www.pointh.com");
+                builder.appendQueryParameter(BundleCodes.URL_FAIL,"demo://www.pointh.com");
+
+                Intent i = new Intent();
+                i.setAction(Intent.ACTION_VIEW);
+                i.setData(builder.build());
+
+                // Before we can start the intent, we should check if this phone handle the intent?
+                if (isAvailable(i)) {
+                    // start activity for result
+                    startActivity(i);
+                } else {
+                    // send to google play.
+                    try {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + getPackageName())));
+                    } catch (ActivityNotFoundException e) {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=" + getPackageName())));
+                    }
+                }
+
+            }
+        });
+
+
     }
 
     public static Integer MSG_PRINT_RESULTS = 1;

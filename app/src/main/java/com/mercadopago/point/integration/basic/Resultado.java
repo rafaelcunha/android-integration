@@ -1,6 +1,7 @@
 package com.mercadopago.point.integration.basic;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -19,7 +20,7 @@ public class Resultado extends AppCompatActivity {
     View layoutView;
 
     // it could be
-    public final static String RESULT_STATUS = "result_status";
+
     public final static String RESULT_PAYMENT_ID = "paymentId";
 
     public final static String RESULT_STATUS_OK = "OK";
@@ -37,29 +38,9 @@ public class Resultado extends AppCompatActivity {
         Intent launcherIntent = getIntent();
         Bundle data = launcherIntent.getExtras();
         if (data != null) {
-
-            String result = data.getString(RESULT_STATUS);
-
-            if (RESULT_STATUS_OK.equals(result)) {
-                if (android.os.Build.VERSION.SDK_INT >= 22) {
-                    image.setImageDrawable(getDrawable(R.drawable.ok));
-                } else {
-                    image.setImageDrawable(getResources().getDrawable(R.drawable.ok));
-                }
-
-                layoutView.setVisibility(View.VISIBLE);
-                paymentId.setText(String.valueOf(data.getLong(RESULT_PAYMENT_ID)));
-            }
-
-            if (RESULT_STATUS_FAILED.equals(result)) {
-                if (android.os.Build.VERSION.SDK_INT >= 22) {
-                    image.setImageDrawable(getDrawable(R.drawable.fail));
-                } else {
-                    image.setImageDrawable(getResources().getDrawable(R.drawable.fail));
-                }
-                layoutView.setVisibility(View.GONE);
-            }
-
+            String result = data.getString(BundleCodes.RESULT_STATUS);
+            setStatus(result);
+            paymentId.setText(String.valueOf(data.getLong(RESULT_PAYMENT_ID)));
             Iterator keys = data.keySet().iterator();
             StringBuffer stringBuffer = new StringBuffer();
             while (keys.hasNext()) {
@@ -67,12 +48,33 @@ public class Resultado extends AppCompatActivity {
                 stringBuffer.append(key + " " + String.valueOf(data.get(key)));
             }
             textView.setText(stringBuffer.toString());
-        } else
-
-        {
-            // won't happen.
+        }
+        Uri uri = launcherIntent.getData();
+        if (uri != null) {
+            String result = uri.getQueryParameter(BundleCodes.RESULT_STATUS);
+            setStatus(result);
+            paymentId.setText(uri.getQueryParameter(RESULT_PAYMENT_ID));
+            textView.setText(uri.getQuery());
         }
 
+    }
 
+    private void setStatus(String status) {
+        if (RESULT_STATUS_OK.equals(status)) {
+            if (android.os.Build.VERSION.SDK_INT >= 22) {
+                image.setImageDrawable(getDrawable(R.drawable.ok));
+            } else {
+                image.setImageDrawable(getResources().getDrawable(R.drawable.ok));
+            }
+            layoutView.setVisibility(View.VISIBLE);
+        }
+        if (RESULT_STATUS_FAILED.equals(status)) {
+            if (android.os.Build.VERSION.SDK_INT >= 22) {
+                image.setImageDrawable(getDrawable(R.drawable.fail));
+            } else {
+                image.setImageDrawable(getResources().getDrawable(R.drawable.fail));
+            }
+            layoutView.setVisibility(View.GONE);
+        }
     }
 }

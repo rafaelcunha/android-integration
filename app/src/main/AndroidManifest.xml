@@ -16,6 +16,16 @@
             </intent-filter>
         </activity>
         <activity android:name="com.mercadopago.point.integration.basic.Resultado">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="www.pointh.com"
+                    android:scheme="demo" />
+            </intent-filter>
         </activity>
     </application>
 
