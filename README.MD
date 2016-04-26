@@ -15,53 +15,54 @@ For the basic integration you have to create a [implicit intent](http://develope
 
 ```java
 
-    public static final String LAUNCHER_INTENT_DESCRIPTION = "launcher_intent_description";
-    public static final String LAUNCHER_INTENT_AMOUNT = "launcher_intent_amount";
-    public static final String LAUNCHER_INTENT_TYPE = "launcher_intent_type";
-    public static final String LAUNCHER_INTENT_INSTALLMENTS = "launcher_intent_installments";
-
-    public static final String LAUNCHER_APP_ID = "launcher_app_id";
-    public static final String LAUNCHER_APP_SECRET = "launcher_app_secret";
-    public static final String LAUNCHER_APP_FEE = "launcher_app_fee";
-
+  
+    String AMOUNT = "amount";
+    String DESCRIPTION = "description";
+    String CARD_TYPE = "card_type";
+    String INSTALLMENTS = "installments";
+    String APP_ID = "app_id";
+    String APP_SECRET = "app_secret";
+    String APP_FEE = "app_fee";
 
     ...
     ...
 
 
-    Intent i = new Intent();
-    i.setAction("com.mercadopago.PAYMENT_ACTION");
-    // AppId
-    i.putExtra(LAUNCHER_APP_ID, appId);
-    // Secret
-    i.putExtra(LAUNCHER_APP_SECRET, appSecret);
-    // App Fee
-    i.putExtra(LAUNCHER_APP_FEE, appFee);
-    // Amount of transaction
-    i.putExtra(LAUNCHER_INTENT_AMOUNT, amount.getText().toString());
-    // Description of transaction
-    i.putExtra(LAUNCHER_INTENT_DESCRIPTION, reference.getText().toString());
-    if (spinner.getSelectedItemPositixon() == 0) {
-        cc_selected = "credit_card";
-    } else {
-        cc_selected = "debit_card";
-    }
-    // Payment type of transaction ( credit_card | debit_card  )
-    i.putExtra(LAUNCHER_INTENT_TYPE, cc_selected);
-    // # of installments
-    i.putExtra(LAUNCHER_INTENT_INSTALLMENTS, installments.getText().toString());
-    // Before we can start the intent, we should check if this phone handle the intent?
-    if (isAvailable(i)) {
-        // start activity for result
-        startActivityForResult(i, PAYMENT_REQUEST);
-    } else {
-        // send to google play.
-        try {
-            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + getPackageName())));
-        } catch (ActivityNotFoundException e) {
-            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=" + getPackageName())));
-        }
-    }
+     Intent i = new Intent();
+                    i.setAction("com.mercadopago.PAYMENT_ACTION");
+                    Bundle bundle = new Bundle();
+                    // AppId
+                    bundle.putString(BundleCodes.APP_ID, appId);
+                    // Secret
+                    bundle.putString(BundleCodes.APP_SECRET, appSecret);
+                    // App Fee
+                    bundle.putDouble(BundleCodes.APP_FEE, appFee);
+                    // Amount of transaction
+                    bundle.putDouble(BundleCodes.AMOUNT, Double.valueOf(amount.getText().toString()));
+                    // Description of transaction
+                    bundle.putString(BundleCodes.DESCRIPTION, reference.getText().toString());
+                    if (spinner.getSelectedItemPosition() == 0) {
+                        cc_selected = "credit_card";
+                    } else {
+                        cc_selected = "debit_card";
+                    }
+                    // Payment type of transaction ( credit_card | debit_card  )
+                    bundle.putString(BundleCodes.CARD_TYPE, cc_selected);
+                    // # of installments
+                    bundle.putInt(BundleCodes.INSTALLMENTS, Integer.valueOf(installments.getText().toString()));
+                    // Before we can start the intent, we should check if this phone handle the intent?
+                    if (isAvailable(i)) {
+                        // start activity for result
+                        i.putExtras(bundle);
+                        startActivityForResult(i, PAYMENT_REQUEST);
+                    } else {
+                        // send to google play.
+                        try {
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + getPackageName())));
+                        } catch (ActivityNotFoundException e) {
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=" + getPackageName())));
+                        }
+                    }
 
 ```
 
@@ -150,10 +151,6 @@ public class Resultado extends AppCompatActivity {
     }
 }
 ```
-
-### Advanced:
-
-TODO: Document
 
 ## Repo usage
 *Do not clone or push to master branch.*

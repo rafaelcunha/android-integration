@@ -6,6 +6,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -14,7 +16,6 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-
 import com.mercadopago.point.integration.R;
 
 import java.util.List;
@@ -22,27 +23,18 @@ import java.util.List;
 public class Main extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
 
-    public static final String LAUNCHER_INTENT_DESCRIPTION = "launcher_intent_description";
-    public static final String LAUNCHER_INTENT_AMOUNT = "launcher_intent_amount";
-    public static final String LAUNCHER_INTENT_TYPE = "launcher_intent_type";
-    public static final String LAUNCHER_INTENT_INSTALLMENTS = "launcher_intent_installments";
-
-    public static final String LAUNCHER_APP_ID = "launcher_app_id";
-    public static final String LAUNCHER_APP_SECRET = "launcher_app_secret";
-    public static final String LAUNCHER_APP_FEE = "launcher_app_fee";
-
     public static final int PAYMENT_REQUEST = 1;
 
     EditText reference;
     EditText amount;
     EditText installments;
-    FloatingActionButton go;
+    FloatingActionButton go_bundle;
+    FloatingActionButton go_url;
 
     String cc_selected;
-
-    String appId = "MyAppID";
-    String appSecret = "MySecret";
-    double appFee = 12.0;
+    String appId = "2707436798674401";
+    String appSecret = "D0movQVpbi2KeUj5eEO4Co2BNUoFfClp";
+    double appFee = 1.0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,34 +52,33 @@ public class Main extends AppCompatActivity implements AdapterView.OnItemSelecte
         // Apply the adapter to the spinner
         spinner.setAdapter(adapter);
         installments = (EditText) findViewById(R.id.installments);
-        go = (FloatingActionButton) findViewById(R.id.go);
-        go.setOnClickListener(new View.OnClickListener() {
+
+        go_bundle = (FloatingActionButton) findViewById(R.id.go_bundle);
+        go_bundle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent();
                 i.setAction("com.mercadopago.PAYMENT_ACTION");
+                Bundle bundle = new Bundle();
                 // AppId
-                i.putExtra(LAUNCHER_APP_ID, appId);
-                // Secret
-                i.putExtra(LAUNCHER_APP_SECRET, appSecret);
-                // App Fee
-                i.putExtra(LAUNCHER_APP_FEE, appFee);
+                bundle.putString(BundleCodes.APP_ID, appId);
                 // Amount of transaction
-                i.putExtra(LAUNCHER_INTENT_AMOUNT, amount.getText().toString());
+                bundle.putDouble(BundleCodes.AMOUNT, Double.valueOf(amount.getText().toString()));
                 // Description of transaction
-                i.putExtra(LAUNCHER_INTENT_DESCRIPTION, reference.getText().toString());
+                bundle.putString(BundleCodes.DESCRIPTION, reference.getText().toString());
                 if (spinner.getSelectedItemPosition() == 0) {
                     cc_selected = "credit_card";
                 } else {
                     cc_selected = "debit_card";
                 }
                 // Payment type of transaction ( credit_card | debit_card  )
-                i.putExtra(LAUNCHER_INTENT_TYPE, cc_selected);
+                bundle.putString(BundleCodes.CARD_TYPE, cc_selected);
                 // # of installments
-                i.putExtra(LAUNCHER_INTENT_INSTALLMENTS, installments.getText().toString());
+                bundle.putInt(BundleCodes.INSTALLMENTS, Integer.valueOf(installments.getText().toString()));
                 // Before we can start the intent, we should check if this phone handle the intent?
                 if (isAvailable(i)) {
                     // start activity for result
+                    i.putExtras(bundle);
                     startActivityForResult(i, PAYMENT_REQUEST);
                 } else {
                     // send to google play.
@@ -100,7 +91,68 @@ public class Main extends AppCompatActivity implements AdapterView.OnItemSelecte
 
             }
         });
+
+        go_url = (FloatingActionButton) findViewById(R.id.go_url);
+        go_url.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Uri.Builder builder = Uri.parse("https://secure.mlstatic.com/org-img/point/app/index.html")
+                        .buildUpon();
+                // Amount of transaction
+                builder.appendQueryParameter(BundleCodes.AMOUNT, amount.getText().toString());
+                // Description of transaction
+                builder.appendQueryParameter(BundleCodes.DESCRIPTION, reference.getText().toString());
+                if (spinner.getSelectedItemPosition() == 0) {
+                    cc_selected = "credit_card";
+                } else {
+                    cc_selected = "debit_card";
+                }
+                // Payment type of transaction ( credit_card | debit_card  )
+                builder.appendQueryParameter(BundleCodes.CARD_TYPE, cc_selected);
+                // # of installments
+                builder.appendQueryParameter(BundleCodes.INSTALLMENTS, installments.getText().toString());
+
+                builder.appendQueryParameter(BundleCodes.URL_SUCCESS,"demo://www.pointh.com");
+                builder.appendQueryParameter(BundleCodes.URL_FAIL,"demo://www.pointh.com");
+
+                Intent i = new Intent();
+                i.setAction(Intent.ACTION_VIEW);
+                i.setData(builder.build());
+
+                // Before we can start the intent, we should check if this phone handle the intent?
+                if (isAvailable(i)) {
+                    // start activity for result
+                    startActivity(i);
+                } else {
+                    // send to google play.
+                    try {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + getPackageName())));
+                    } catch (ActivityNotFoundException e) {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=" + getPackageName())));
+                    }
+                }
+
+            }
+        });
+
+
     }
+
+    public static Integer MSG_PRINT_RESULTS = 1;
+
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg.what == MSG_PRINT_RESULTS) {
+                Intent intent = new Intent(Main.this, Resultado.class);
+                intent.putExtras((Bundle) msg.obj);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
+
+        }
+    };
 
     public void onItemSelected(AdapterView<?> parent, View view,
                                int pos, long id) {
@@ -114,9 +166,10 @@ public class Main extends AppCompatActivity implements AdapterView.OnItemSelecte
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PAYMENT_REQUEST && data != null) {
-            Intent intent = new Intent(this, Resultado.class);
-            intent.putExtras(data.getExtras());
-            startActivity(intent);
+            Message msg = handler.obtainMessage();
+            msg.what = MSG_PRINT_RESULTS;
+            msg.obj = data.getExtras();
+            handler.sendMessageDelayed(msg, 1000);
         }
 
     }
