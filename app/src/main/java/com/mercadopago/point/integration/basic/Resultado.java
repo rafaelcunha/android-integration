@@ -10,11 +10,11 @@ import android.widget.TextView;
 
 import com.mercadopago.point.integration.R;
 
-import java.util.Iterator;
-
 public class Resultado extends AppCompatActivity {
 
-    TextView textView;
+    TextView installments;
+    TextView amount;
+    TextView ccType;
     TextView paymentId;
     ImageView image;
     View layoutView;
@@ -30,10 +30,14 @@ public class Resultado extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_resultado);
-        textView = (TextView) findViewById(R.id.intent_results);
         image = (ImageView) findViewById(R.id.icon);
         layoutView = findViewById(R.id.payment_id_lo);
         paymentId = (TextView) findViewById(R.id.payment_id);
+        installments = (TextView) findViewById(R.id.installments);
+        amount = (TextView) findViewById(R.id.amount);
+        ccType = (TextView) findViewById(R.id.cc_type);
+
+
 
         Intent launcherIntent = getIntent();
         Bundle data = launcherIntent.getExtras();
@@ -41,20 +45,19 @@ public class Resultado extends AppCompatActivity {
             String result = data.getString(BundleCodes.RESULT_STATUS);
             setStatus(result);
             paymentId.setText(String.valueOf(data.getLong(RESULT_PAYMENT_ID)));
-            Iterator keys = data.keySet().iterator();
-            StringBuffer stringBuffer = new StringBuffer();
-            while (keys.hasNext()) {
-                String key = (String) keys.next();
-                stringBuffer.append(key + " " + String.valueOf(data.get(key)));
-            }
-            textView.setText(stringBuffer.toString());
+            installments.setText(String.valueOf(data.getInt(BundleCodes.INSTALLMENTS)));
+            amount.setText(String.valueOf(data.getDouble(BundleCodes.AMOUNT)));
+            ccType.setText(data.getString(BundleCodes.CARD_TYPE));
         }
+
         Uri uri = launcherIntent.getData();
         if (uri != null) {
             String result = uri.getQueryParameter(BundleCodes.RESULT_STATUS);
             setStatus(result);
             paymentId.setText(uri.getQueryParameter(RESULT_PAYMENT_ID));
-            textView.setText(uri.getQuery());
+            installments.setText(uri.getQueryParameter(BundleCodes.INSTALLMENTS));
+            amount.setText(uri.getQueryParameter(BundleCodes.AMOUNT));
+            ccType.setText(uri.getQueryParameter(BundleCodes.CARD_TYPE));
         }
 
     }
@@ -66,6 +69,7 @@ public class Resultado extends AppCompatActivity {
             } else {
                 image.setImageDrawable(getResources().getDrawable(R.drawable.ok));
             }
+            // Show the payment id
             layoutView.setVisibility(View.VISIBLE);
         }
         if (RESULT_STATUS_FAILED.equals(status)) {
@@ -75,6 +79,8 @@ public class Resultado extends AppCompatActivity {
                 image.setImageDrawable(getResources().getDrawable(R.drawable.fail));
             }
             layoutView.setVisibility(View.GONE);
+            // Hide the payment id
+            layoutView.setVisibility(View.VISIBLE);
         }
     }
 }
