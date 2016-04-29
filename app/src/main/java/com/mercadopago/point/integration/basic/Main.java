@@ -30,6 +30,7 @@ public class Main extends AppCompatActivity implements AdapterView.OnItemSelecte
     EditText installments;
     FloatingActionButton go_bundle;
     FloatingActionButton go_url;
+    FloatingActionButton refererBtn;
 
     String cc_selected;
     String appId = "2707436798674401";
@@ -113,8 +114,8 @@ public class Main extends AppCompatActivity implements AdapterView.OnItemSelecte
                 // # of installments
                 builder.appendQueryParameter(BundleCodes.INSTALLMENTS, installments.getText().toString());
 
-                builder.appendQueryParameter(BundleCodes.URL_SUCCESS,"demo://www.pointh.com");
-                builder.appendQueryParameter(BundleCodes.URL_FAIL,"demo://www.pointh.com");
+                builder.appendQueryParameter(BundleCodes.URL_SUCCESS, "demo://www.pointh.com");
+                builder.appendQueryParameter(BundleCodes.URL_FAIL, "demo://www.pointh.com");
 
                 Intent i = new Intent();
                 i.setAction(Intent.ACTION_VIEW);
@@ -135,8 +136,18 @@ public class Main extends AppCompatActivity implements AdapterView.OnItemSelecte
 
             }
         });
-
-
+        refererBtn = (FloatingActionButton) findViewById(R.id.referer);
+        refererBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent("com.android.vending.INSTALL_REFERRER");
+                i.setPackage("com.mercadopago.point.integration");
+                //referrer is a composition of the parameter of the campaing
+                i.putExtra("referer", "lalala");
+                i.putExtra("c", "sdasadsd");
+                sendBroadcast(i);
+            }
+        });
     }
 
     public static Integer MSG_PRINT_RESULTS = 1;

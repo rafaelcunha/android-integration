@@ -8,13 +8,23 @@ android {
         applicationId "com.mercadopago.point.integration"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "2.1"
     }
+    signingConfigs {
+        release {
+            storeFile file("/Users/sebad/Dropbox/key-stores/com.zezoz.itt.keystore")
+            storePassword "pumppass"
+            keyAlias "app_pump"
+            keyPassword "pumppass"
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 }
