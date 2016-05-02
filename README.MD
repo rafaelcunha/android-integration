@@ -164,7 +164,7 @@ with the following URL :  https://secure.mlstatic.com/org-img/point/app/index.ht
 | success_url     | no          | The url to call when the payment has been done successfully, if none is provided we show the default point screen.  |
 | fail_url     | no          | The url to call when the payment has not been done successfully, if none is provided we show the default point screen. |
 
-> 1. Its required is you provide a client_id
+> 1. Its required if you provide a client_id
 > 2. If you provide application_fee , you must provide client_id & client_secret
 
 
